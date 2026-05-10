@@ -167,7 +167,7 @@ oversubscribed on purpose; LXCs share the host kernel and idle very cheaply.
 - **[docs/backups.md](docs/backups.md)** — Proxmox Backup Server + retention
 - **[docs/roadmap.md](docs/roadmap.md)** — what's next: PBS, off-site photo backup, IaC, clustering, more
 - **[docs/services/](docs/services/)** — one page per LXC
-- **[runbooks/](runbooks/)** — operational procedures (add LXC, restore, etc.)
+- **[runbooks/](runbooks/)** — operational procedures (add LXC, [media stack sync](runbooks/media-sync.md), etc.)
 - **[diagrams/](diagrams/)** — Mermaid sources for every diagram in this repo
 
 ---
