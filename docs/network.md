@@ -3,10 +3,10 @@
 ```mermaid
 flowchart TB
     Internet((Internet))
-    CF[Cloudflare<br/>DNS + proxy]
+    CF[Cloudflare<br/>authoritative DNS<br/>+ ACME DNS-01]
 
     subgraph LAN["LAN — 192.168.88.0/24"]
-        Router[MikroTik Router<br/>192.168.88.1<br/>DHCP + WAN]
+        Router[MikroTik Router<br/>192.168.88.1<br/>DHCP + WAN<br/>:80/:443 forward]
         Switch[Cudy GS108<br/>8-port gigabit switch]
         Pi[pihole · Raspberry Pi<br/>Pi-hole + Unbound]
         PVE[pve host<br/>192.168.88.230]
@@ -21,13 +21,15 @@ flowchart TB
 
     Tailnet((Tailscale tailnet<br/>100.64.0.0/10))
 
-    Internet --> CF --> Router
-    Router -- ":80/:443 forward" --> NPM
+    Internet --> Router
     Router --- Switch
     Switch --- Pi & PVE
     PVE -.bridge vmbr0.- Containers
+    NPM -. "DNS-01 cert renewal" .-> CF
+    Internet -. "*.ethanet.co.za NS lookup" .- CF
     Containers -.tailscale.- Tailnet
     PVE -.tailscale.- Tailnet
+    Tailnet ==> NPM
 ```
 
 ## LAN
@@ -74,24 +76,39 @@ Every LXC and the host itself runs `tailscaled` (the LXCs use the standard
 service is reachable by its MagicDNS name (`jellyfin`, `immich`, etc.) from any
 of my devices on the tailnet, with no LAN port forwarding required.
 
-The tailnet is the **primary** access path. The public ingress through
-Cloudflare/NPM exists only to share Jellyfin and Jellyseerr with people who
-aren't on my tailnet.
+The tailnet is the **only** external access path. Anyone who needs to use
+Jellyfin or Jellyseerr (family, friends) joins the tailnet — there is no
+public ingress.
 
-## Public ingress
+## External access
 
-Cloudflare hosts the apex domain and proxies HTTP(S) traffic to the home IP.
-The router forwards `:80` and `:443` to `192.168.88.223` (Nginx Proxy Manager,
-CT 101), which terminates TLS using Let's Encrypt certs and proxies to the
-appropriate container by hostname.
+**There is no public ingress.** The router does not forward `:80` or `:443`
+(or anything else) to the lab. The only way to reach any service from
+outside the LAN is Tailscale.
 
-NPM also exposes its admin UI on `:81` — that one is **not** published; it's
-only reachable on the LAN and over Tailscale.
+What NPM actually does for me:
+
+- Cloudflare DNS for `*.ethanet.co.za` resolves subdomains like
+  `jellyfin.ethanet.co.za` to NPM's address inside the tailnet/LAN.
+- NPM (CT 101) terminates TLS for those subdomains using a wildcard cert
+  from Let's Encrypt. Cert issuance and renewal use the **DNS-01**
+  challenge against Cloudflare's API (NPM has the API token), so no
+  inbound HTTP-01 traffic from public internet is needed.
+- NPM proxies the request by `Host:` header to the matching LXC over the
+  bridge in plain HTTP.
+
+Net effect: I can hit `https://jellyfin.ethanet.co.za` from any device on
+my tailnet, get a real cert, and never type an LXC IP. Anyone not on the
+tailnet who tries the same URL just hits a tailnet-private address that
+doesn't route — they can't see the lab at all.
 
 ## DNS
 
-- **Public:** Cloudflare authoritative for the apex domain
+- **Public:** Cloudflare is authoritative for `ethanet.co.za`. All records
+  for the lab's subdomains are managed there. Cloudflare also provides the
+  API NPM uses for ACME DNS-01 cert renewals.
 - **LAN:** Pi-hole on a Raspberry Pi, served via the router's DHCP options.
-  Used for ad-blocking and local hostname → tailnet IP overrides
-- **Tailnet:** MagicDNS is enabled, which gives each device a name like
-  `<host>.tail-XXXXXX.ts.net` and short names within the tailnet
+  Used for ad-blocking and local hostname overrides.
+- **Tailnet:** MagicDNS is enabled, which gives each device a short name
+  within the tailnet (`jellyfin`, `immich`, etc.) plus a long
+  `<host>.tail-XXXXXX.ts.net` form.

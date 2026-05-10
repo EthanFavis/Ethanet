@@ -5,10 +5,14 @@ A small homelab built around three ideas:
 - **One small box, many isolated workloads.** A 35 W mini PC runs twelve
   unprivileged LXC containers — media, photos, game servers, monitoring,
   reverse proxy — without the overhead of full VMs.
-- **Tailscale before public ingress.** Every container joins my tailnet, so
-  every service is reachable from any of my devices without opening ports.
-  The single public ingress (Cloudflare → Nginx Proxy Manager) exists only
-  for sharing Jellyfin and Jellyseerr with people who aren't on my tailnet.
+- **Tailscale-only access — nothing is publicly exposed.** Every container
+  joins my tailnet, and no ports on the router are forwarded to anything in
+  the lab. Family and friends who use Jellyfin/Jellyseerr connect through
+  Tailscale too. Nginx Proxy Manager isn't a public ingress — it sits
+  inside the tailnet and turns LXC IPs into clean HTTPS URLs like
+  `jellyfin.ethanet.co.za`, `requests.ethanet.co.za`, and so on. Cloudflare
+  hosts authoritative DNS for the domain and provides the API NPM uses for
+  Let's Encrypt DNS-01 challenges; it does **not** proxy traffic.
 - **Filtered, recursive DNS at the edge.** A 2012 Raspberry Pi runs Pi-hole
   in front of a local Unbound resolver — every DNS query in the house gets
   ad-filtered and resolved from the root servers, never leaking to a public
@@ -28,7 +32,7 @@ built.
 | **Hypervisor** | Proxmox VE 9.1.6 (kernel 6.17.13-2-pve) |
 | **Workloads** | 12 unprivileged LXC containers (no VMs) |
 | **Networking** | MikroTik router (192.168.88.0/24) → single bridge `vmbr0` → Tailscale on every container |
-| **Public access** | Nginx Proxy Manager + Cloudflare-fronted domain |
+| **External access** | Tailscale only — no port-forwards. NPM gives services clean HTTPS URLs (Let's Encrypt via Cloudflare DNS-01) |
 | **DNS** | [Pi-hole + Unbound](docs/services/pi-hole.md) on a 2012 Raspberry Pi 1B — recursive, ad-filtering |
 | **Remote access** | Tailscale (no port-forwards into the LAN) |
 | **Monitoring** | Beszel agent on the host + per-container |
@@ -42,10 +46,10 @@ built.
 ```mermaid
 flowchart LR
     Internet((Internet))
-    CF[Cloudflare]
+    CF[Cloudflare<br/>authoritative DNS<br/>+ ACME DNS-01 API]
 
     subgraph LAN["LAN — 192.168.88.0/24"]
-        Router[MikroTik Router<br/>.1 · DHCP/NAT]
+        Router[MikroTik Router<br/>.1 · DHCP/NAT<br/>:80/:443 port-forward]
         Pihole[pihole · Raspberry Pi<br/>.169 · Pi-hole + Unbound]
 
         subgraph PVE["Proxmox Host — pve (.230)"]
@@ -78,15 +82,19 @@ flowchart LR
 
     Tailnet((Tailscale<br/>tailnet))
 
-    Internet --> CF --> Router
-    Router -- ":80/:443" --> NPM
+    Internet --> Router
     Router -- "DHCP hands out<br/>pihole as DNS" --> Pihole
     Router --- Bridge
     Bridge --- NPM & Media & Other
     Jellyfin & Sonarr & Radarr & QB & Immich --- Storage
 
+    NPM -. "DNS-01<br/>cert renewal" .-> CF
+    Internet -. "*.ethanet.co.za<br/>NS lookup" .- CF
+
     Pihole -.tailscale.- Tailnet
     PVE -.tailscale.- Tailnet
+    NPM -.tailscale.- Tailnet
+    Tailnet ==> NPM
     Tailnet -.-> Internet
 ```
 
@@ -103,7 +111,7 @@ runs `tailscaled` and is reachable on the tailnet without exposing the LAN.
 | CTID | Service | Purpose | Cores | RAM | Disk | Notes |
 |------|---------|---------|------:|----:|-----:|-------|
 | 100 | [crafty-controller](docs/services/crafty-controller.md) | Minecraft server manager | 4 | 10 GB | 32 GB | Web UI on :8443 |
-| 101 | [nginxproxymanager](docs/services/nginxproxymanager.md) | Reverse proxy / TLS | 2 | 2 GB | 8 GB | Public ingress |
+| 101 | [nginxproxymanager](docs/services/nginxproxymanager.md) | Reverse proxy / TLS | 2 | 2 GB | 8 GB | Tailnet-internal HTTPS |
 | 102 | [immich](docs/services/immich.md) | Self-hosted photos | 4 | 6 GB | 20 GB + bind | GPU-accelerated ML |
 | 103 | [qbittorrent](docs/services/qbittorrent.md) | BitTorrent client | 2 | 2 GB | 8 GB + bind | Bound to `/downloads` |
 | 104 | [jellyfin](docs/services/jellyfin.md) | Media server | 2 | 4 GB | 16 GB + bind | Quick Sync transcode |
@@ -146,11 +154,11 @@ painful. Unprivileged LXCs share the kernel, start in under a second, and let
 me hand a single 1 TB HDD to multiple media services as a bind mount instead of
 juggling per-VM virtual disks.
 
-**Tailscale on every container, not just the host.** Each container gets its
-own MagicDNS name and tailnet IP, so I can reach any service from my laptop
-or phone over WireGuard with zero port-forwards on the LAN. No public
-ingress is required for personal use; the public domain only exists for
-sharing Jellyfin/Jellyseerr with non-technical family.
+**Tailscale on every container, not just the host.** Each container gets
+its own MagicDNS name and tailnet IP, so I can reach any service from my
+laptop or phone over WireGuard with zero port-forwards on the LAN. Family
+and friends who want Jellyfin/Jellyseerr access join the tailnet — there's
+no public ingress to lock down because there isn't one in the first place.
 
 **Hardware-accelerated transcoding into unprivileged containers.** The
 `/dev/dri/renderD128` and `/dev/dri/card1` devices are passed into the
@@ -158,9 +166,12 @@ sharing Jellyfin/Jellyseerr with non-technical family.
 works without dropping container privileges. See
 [docs/services/jellyfin.md](docs/services/jellyfin.md) for the full config.
 
-**Reverse proxy as the only public ingress.** Cloudflare → NPM (101) is the
-single TLS-terminating edge. Internal services don't speak TLS to each other —
-they ride the LXC-to-LXC bridge.
+**Reverse proxy for clean HTTPS, not for public ingress.** NPM (101) lives
+inside the tailnet and turns each LXC IP into a memorable HTTPS URL —
+`jellyfin.ethanet.co.za`, `requests.ethanet.co.za`, etc. Wildcard certs
+come from Let's Encrypt using DNS-01 challenges against Cloudflare (which
+is authoritative for the domain). The router does **not** forward `:80`
+or `:443` to NPM; the only way in from outside is Tailscale.
 
 **Reproducible deploys.** Every container was provisioned via the
 [community-scripts ProxmoxVE](https://github.com/community-scripts/ProxmoxVE)

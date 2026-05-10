@@ -1,7 +1,9 @@
 # Nginx Proxy Manager (CT 101)
 
-The single TLS-terminating ingress for everything in the lab that's exposed to
-the public internet. UI at `:81`, HTTP at `:80`, HTTPS at `:443`.
+The TLS terminator and pretty-URL provider for the lab. **NPM is not a
+public ingress** — the router doesn't forward any ports to it. It exists
+so I can type `https://jellyfin.ethanet.co.za` from inside the tailnet
+instead of remembering that Jellyfin lives at `192.168.88.x:8096`.
 
 ## Container
 
@@ -18,19 +20,37 @@ the public internet. UI at `:81`, HTTP at `:80`, HTTPS at `:443`.
 
 ## Listening ports (from `ss -tlnp`)
 
-| Port | Service | Exposed |
+| Port | Service | Reachable from |
 |---:|---|---|
-| 80 | nginx (HTTP → redirects to 443) | LAN + public |
-| 81 | NPM admin UI (Node) | LAN + tailnet only |
-| 443 | nginx (HTTPS, Let's Encrypt) | LAN + public |
+| 80 | nginx (HTTP → redirects to 443) | LAN + tailnet |
+| 81 | NPM admin UI (Node) | LAN + tailnet |
+| 443 | nginx (HTTPS, Let's Encrypt) | LAN + tailnet |
 | 3000 | node (NPM internal) | LAN |
 
-## Ingress flow
+None of these ports are forwarded by the router. From outside the LAN,
+they're only reachable over Tailscale.
 
-1. DNS for the public domain points to the home WAN IP (Cloudflare proxied).
-2. The MikroTik router forwards `:80` and `:443` to `192.168.88.223`.
-3. NPM matches `Host:` headers and proxies to the appropriate LXC by hostname
-   over the LAN bridge — TLS terminates here, internal hops are plain HTTP.
+## Request flow
+
+1. A client on the tailnet (or LAN) opens `https://jellyfin.ethanet.co.za`.
+2. Cloudflare DNS resolves that subdomain to NPM's address (tailnet-private
+   or LAN — either way, only routable to peers on those networks).
+3. NPM terminates TLS using its wildcard `*.ethanet.co.za` cert and
+   proxies the request by `Host:` header to the matching LXC in plain HTTP
+   over the bridge.
+
+## Cert issuance — DNS-01 against Cloudflare
+
+NPM holds a Cloudflare API token scoped to `ethanet.co.za`. When a cert
+is up for renewal, NPM:
+
+1. Asks Let's Encrypt for a challenge.
+2. Uses the Cloudflare API to write the required `_acme-challenge` TXT
+   record on the zone.
+3. Tells Let's Encrypt to verify, then deletes the TXT record.
+
+This means **no inbound HTTP-01 traffic from the public internet is ever
+required** — ideal for a lab that doesn't expose `:80` to the world.
 
 ## Why NPM and not Caddy / Traefik?
 

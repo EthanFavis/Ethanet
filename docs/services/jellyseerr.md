@@ -20,15 +20,21 @@ movies here; Jellyseerr turns approvals into Sonarr/Radarr API calls.
 
 ## How it's reached
 
-- **Public:** `https://requests.<my-domain>` via NPM → Cloudflare
-- **Tailnet:** `http://seerr:5055`
+- **Tailnet (pretty URL):** `https://requests.ethanet.co.za` via NPM
+- **Tailnet (raw):** `http://seerr:5055`
 
-## Why this is the only public-facing app besides Jellyfin
+(Both require being on the tailnet — there's no public ingress.)
+
+## Why it exists
 
 Jellyseerr is the front door for non-technical users. They sign in with their
 Jellyfin account, search a library that knows what's already in the
 collection, and request what's missing. It's the cleanest UX that doesn't
 require teaching them what Sonarr or Prowlarr is.
+
+Family and friends who use Jellyseerr connect via Tailscale — installing
+the Tailscale client is a one-time, one-tap thing for them and replaces
+the much messier alternative of opening ports on my router.
 
 ## Upstream
 

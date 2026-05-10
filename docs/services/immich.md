@@ -35,8 +35,8 @@ face detection on bulk imports.
 
 ## How it's reached
 
-- **Tailnet:** `http://immich:2283`
-- **Public:** `https://photos.<my-domain>` via NPM → Cloudflare
+- **Tailnet (pretty URL):** `https://photos.ethanet.co.za` via NPM
+- **Tailnet (raw):** `http://immich:2283`
 
 ## Notes
 

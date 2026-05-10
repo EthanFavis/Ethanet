@@ -45,8 +45,10 @@ Tiger Lake / 11th gen. AV1 streams will fall back to software.)
 
 ## How it's reached
 
-- **LAN/Tailnet:** `http://jellyfin:8096` (MagicDNS) or LAN IP from DHCP
-- **Public:** `https://jellyfin.<my-domain>` via NPM → Cloudflare
+- **Tailnet (pretty URL):** `https://jellyfin.ethanet.co.za` via NPM
+- **LAN/Tailnet (raw):** `http://jellyfin:8096` or the DHCP-assigned LAN IP
+
+(All access is gated by Tailscale — there's no public ingress.)
 
 ## Notes
 

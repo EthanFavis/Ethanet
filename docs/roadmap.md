@@ -64,9 +64,44 @@ Even on a single Proxmox host, having the lab declared as code is valuable:
 This is the most "resume-y" item on the roadmap and probably the highest
 work-to-impact ratio for me personally.
 
+### 7. Vaultwarden (self-hosted password manager)
+
+Bitwarden-compatible server I'd run as a new LXC. Hard prerequisite is
+**item 1 (PBS) and item 2 (off-site backups)** — I'm not putting real
+credentials behind a single-copy backup story. Once those land, this is a
+straightforward community-script install + a wildcard cert from NPM.
+
+### 8. Replace Pi-hole with AdGuard Home
+
+AdGuard Home has a nicer UI, native DNS-over-HTTPS / DNS-over-TLS upstream
+and per-client filter rules. Same recursive-resolver pattern as today —
+AdGuard in front, local Unbound behind it. Migration is just changing the
+DHCP option on the MikroTik to point at the new resolver and standing up
+AdGuard before retiring Pi-hole.
+
+### 9. Home Assistant
+
+Once the RAM upgrade (item 3) lands, Home Assistant gets its own LXC for
+smart-home integration. Likely the HAOS-in-LXC route or the HA Container
+flavor — TBD based on what hardware integrations I end up needing.
+
+### 10. Replace MikroTik with a UniFi Cloud Gateway
+
+Move the routing layer to a Ubiquiti UniFi Cloud Gateway. Wins:
+
+- VLANs done properly — finally segment IoT, guest Wi-Fi, and lab traffic
+- IDS/IPS on the WAN edge
+- Centralised UniFi controller UI for the whole network (router + APs)
+- Cleaner DHCP and reservations management
+
+Knock-ons: re-do the `192.168.88.0/24` configuration on the new gateway,
+re-pin DHCP reservations by MAC, and update Pi-hole's upstream to keep
+matching the new DHCP DNS option.
+
 ## Longer term / wishlist
 
-### 7. Second node + Proxmox cluster
+### 11. Second node + Proxmox cluster
+
 
 A second mini PC turns the lab into a real cluster: live migration, HA for
 critical services, and a place for PBS to live without depending on the Pi.
@@ -75,20 +110,20 @@ critical services, and a place for PBS to live without depending on the Pi.
 - Ceph is overkill at this scale; planning to stay on local storage with
   replication for the few HA-needing services
 
-### 8. Disk redundancy for `/mnt/data`
+### 12. Disk redundancy for `/mnt/data`
 
 The 1 TB HDD is single-copy. A `mdadm` mirror with a second 1 TB drive
 would protect against drive failure. Currently deferred because: media is
 re-downloadable, photos will be off-sited (item 2), and the chassis only
 has room for one 2.5" drive — would need an external enclosure.
 
-### 9. Tailscale ACLs + tagged services
+### 13. Tailscale ACLs + tagged services
 
 Right now everything on the tailnet can reach everything else. Proper ACLs
 would let me share Jellyfin with friends-on-tailnet without giving them
 SSH to every container.
 
-### 10. Documentation polish
+### 14. Documentation polish
 
 - Per-service screenshots for `docs/services/*.md`
 - A short blog-style writeup of "why this lab exists and what I learned
@@ -102,7 +137,3 @@ SSH to every container.
 - A real secrets manager (Vault / SOPS) for any creds that end up in IaC
 - Self-hosted Forgejo or Gitea for personal projects (would need to think
   about how to back it up before trusting it)
-- Self-hosted password manager (Vaultwarden) — needs a serious backup story
-  before I'd put real creds in it
-- Replace Pi-hole with AdGuard Home (better UI, native DoH)
-- Smart-home integration (Home Assistant) once I have the RAM headroom
