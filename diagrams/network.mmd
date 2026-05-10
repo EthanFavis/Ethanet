@@ -1,0 +1,49 @@
+%% Topology overview — rendered in README.md
+flowchart LR
+    Internet((Internet))
+    CF[Cloudflare]
+
+    subgraph LAN["LAN — 192.168.88.0/24"]
+        Router[MikroTik Router<br/>.1 · DHCP/NAT]
+        Pihole[pihole · Raspberry Pi<br/>.169 · Pi-hole + Unbound]
+
+        subgraph PVE["Proxmox Host — pve (.230)"]
+            Bridge[vmbr0]
+
+            subgraph Edge["Edge"]
+                NPM[101 · nginxproxymanager]
+            end
+
+            subgraph Media["Media stack"]
+                Jellyfin[104 · jellyfin · GPU]
+                Sonarr[107 · sonarr]
+                Radarr[106 · radarr]
+                Prowlarr[105 · prowlarr]
+                Seerr[108 · jellyseerr]
+                QB[103 · qbittorrent]
+                Flare[109 · flaresolverr]
+            end
+
+            subgraph Other["Other"]
+                Immich[102 · immich · GPU]
+                Crafty[100 · crafty-controller]
+                Homepage[110 · homepage]
+                Beszel[111 · beszel]
+            end
+
+            Storage[(/mnt/data<br/>1 TB HDD)]
+        end
+    end
+
+    Tailnet((Tailscale<br/>tailnet))
+
+    Internet --> CF --> Router
+    Router -- ":80/:443" --> NPM
+    Router -- "DHCP hands out<br/>pihole as DNS" --> Pihole
+    Router --- Bridge
+    Bridge --- NPM & Media & Other
+    Jellyfin & Sonarr & Radarr & QB & Immich --- Storage
+
+    Pihole -.tailscale.- Tailnet
+    PVE -.tailscale.- Tailnet
+    Tailnet -.-> Internet

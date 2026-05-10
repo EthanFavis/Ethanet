@@ -1,0 +1,23 @@
+%% End-to-end media request flow
+sequenceDiagram
+    actor User
+    participant Seerr as Jellyseerr (108)
+    participant Sonarr as Sonarr/Radarr (107/106)
+    participant Prowlarr as Prowlarr (105)
+    participant Flare as FlareSolverr (109)
+    participant QB as qBittorrent (103)
+    participant Disk as /mnt/data
+    participant JF as Jellyfin (104)
+
+    User->>Seerr: Request "Show X"
+    Seerr->>Sonarr: API: add series
+    Sonarr->>Prowlarr: search indexers
+    Prowlarr->>Flare: bypass Cloudflare-protected indexer
+    Flare-->>Prowlarr: cleared response
+    Prowlarr-->>Sonarr: best release
+    Sonarr->>QB: send .torrent
+    QB->>Disk: write to /downloads
+    QB-->>Sonarr: complete
+    Sonarr->>Disk: hardlink → jellyfin/media/Show X
+    JF->>Disk: scan + index (Quick Sync)
+    User->>JF: stream

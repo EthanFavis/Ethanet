@@ -1,0 +1,19 @@
+# Raw inventory dumps may contain serials, MACs, tailnet IPs — never commit
+_inventory/
+
+# Photos: commit the compressed/renamed ones, ignore originals + raw
+photos/originals/
+*.HEIC
+*.heic
+*.RAW
+*.CR2
+*.NEF
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
