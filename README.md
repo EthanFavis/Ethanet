@@ -24,6 +24,31 @@ built.
 
 ---
 
+## Why this lab exists
+
+I built it to solve three real problems and to learn:
+
+- **A media server** I actually want to use, with quality I control.
+- **A way to back up my own data** — particularly photos — without renting
+  someone else's cloud.
+- **A place to learn** Linux, Proxmox, networking, container internals,
+  and reverse proxying by doing the thing rather than reading about it.
+
+Three constraints shaped every decision:
+
+- **Low power.** The whole lab runs on a 35 W TDP mini PC plus a 2012
+  Raspberry Pi 1B for DNS. I'd rather work harder on the architecture than
+  pay for a rack.
+- **Small footprint.** Everything fits on a desk shelf — no rack, no
+  closet, no separate room.
+- **Low cost.** Corporate-refurb hardware, free open-source software, no
+  paid SaaS replacing things I can self-host.
+
+I'm fully invested in growing this lab, but every addition has to keep
+clearing those three bars.
+
+---
+
 ## At a glance
 
 | | |
@@ -177,6 +202,24 @@ or `:443` to NPM; the only way in from outside is Tailscale.
 [community-scripts ProxmoxVE](https://github.com/community-scripts/ProxmoxVE)
 helper scripts. The container IDs and configs in this repo are enough to
 recreate the entire lab on a fresh Proxmox host.
+
+---
+
+## URLs
+
+Every service has a clean HTTPS URL on the tailnet. Full table in
+[`docs/services/nginxproxymanager.md`](docs/services/nginxproxymanager.md);
+the most-used ones are:
+
+- `https://homepage.ethanet.co.za` — landing page
+- `https://jellyfin.ethanet.co.za` — media
+- `https://immich.ethanet.co.za` — photos
+- `https://seerr.ethanet.co.za` — Jellyseerr request portal
+- `https://proxmox.ethanet.co.za` — Proxmox VE web UI
+- `https://nginx.ethanet.co.za` — NPM admin UI
+
+These resolve to tailnet-private addresses, so they're only reachable from
+devices on the tailnet — they're not on the public internet.
 
 ---
 

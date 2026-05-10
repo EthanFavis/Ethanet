@@ -20,7 +20,7 @@ movies here; Jellyseerr turns approvals into Sonarr/Radarr API calls.
 
 ## How it's reached
 
-- **Tailnet (pretty URL):** `https://requests.ethanet.co.za` via NPM
+- **Tailnet (pretty URL):** `https://seerr.ethanet.co.za` via NPM
 - **Tailnet (raw):** `http://seerr:5055`
 
 (Both require being on the tailnet — there's no public ingress.)

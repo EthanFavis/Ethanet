@@ -35,7 +35,7 @@ face detection on bulk imports.
 
 ## How it's reached
 
-- **Tailnet (pretty URL):** `https://photos.ethanet.co.za` via NPM
+- **Tailnet (pretty URL):** `https://immich.ethanet.co.za` via NPM
 - **Tailnet (raw):** `http://immich:2283`
 
 ## Notes
