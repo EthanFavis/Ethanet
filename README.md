@@ -69,58 +69,68 @@ clearing those three bars.
 ## Topology
 
 ```mermaid
+---
+config:
+  layout: elk
+---
 flowchart LR
-    Internet((Internet))
-    CF[Cloudflare<br/>authoritative DNS<br/>+ ACME DNS-01 API]
+ subgraph Pi["Raspberry Pi"]
+        Pihole["Pi‑hole"]
+        Unbound["Unbound DNS"]
+  end
+ subgraph ARR["Arr Stack"]
+        Prowlarr["prowlarr (105)"]
+        Radarr["radarr (106)"]
+        Sonarr["sonarr (107)"]
+        QB["qbittorrent (103)"]
+  end
+ subgraph PVE["Proxmox Host — pve"]
+        Homepage["homepage (110)"]
+        NPM["nginx proxy manager (101)"]
+        Crafty["crafty‑controller (100)"]
+        Beszel["beszel (111)"]
+        Flare["flaresolverr (109)"]
+        ARR
+        Seerr["jellyseerr (108)"]
+        Jellyfin["jellyfin (104 · GPU)"]
+        Immich["immich (102 · GPU)"]
+        Storage[("/mnt/data<br>1 TB HDD")]
+  end
+    Internet(("Internet")) --> Tailnet(("Tailscale<br>tailnet"))
+    Pihole --> Unbound
+    Prowlarr --> Radarr & Sonarr
+    Radarr --> QB & Storage
+    Sonarr --> QB & Storage
+    Tailnet --> Pihole & NPM
+    Flare --> Prowlarr
+    Seerr --> Radarr & Sonarr & Jellyfin
+    QB --> Storage
+    Jellyfin --> Storage
+    Immich --> Storage
 
-    subgraph LAN["LAN — 192.168.88.0/24"]
-        Router[MikroTik Router<br/>.1 · DHCP/NAT<br/>:80/:443 port-forward]
-        Pihole[pihole · Raspberry Pi<br/>.169 · Pi-hole + Unbound]
-
-        subgraph PVE["Proxmox Host — pve (.230)"]
-            Bridge[vmbr0]
-
-            subgraph Edge["Edge"]
-                NPM[101 · nginxproxymanager]
-            end
-
-            subgraph Media["Media stack"]
-                Jellyfin[104 · jellyfin · GPU]
-                Sonarr[107 · sonarr]
-                Radarr[106 · radarr]
-                Prowlarr[105 · prowlarr]
-                Seerr[108 · jellyseerr]
-                QB[103 · qbittorrent]
-                Flare[109 · flaresolverr]
-            end
-
-            subgraph Other["Other"]
-                Immich[102 · immich · GPU]
-                Crafty[100 · crafty-controller]
-                Homepage[110 · homepage]
-                Beszel[111 · beszel]
-            end
-
-            Storage[(/mnt/data<br/>1 TB HDD)]
-        end
-    end
-
-    Tailnet((Tailscale<br/>tailnet))
-
-    Internet --> Router
-    Router -- "DHCP hands out<br/>pihole as DNS" --> Pihole
-    Router --- Bridge
-    Bridge --- NPM & Media & Other
-    Jellyfin & Sonarr & Radarr & QB & Immich --- Storage
-
-    NPM -. "DNS-01<br/>cert renewal" .-> CF
-    Internet -. "*.ethanet.co.za<br/>NS lookup" .- CF
-
-    Pihole -.tailscale.- Tailnet
-    PVE -.tailscale.- Tailnet
-    NPM -.tailscale.- Tailnet
-    Tailnet ==> NPM
-    Tailnet -.-> Internet
+     Internet:::network
+     Tailnet:::network
+     Pihole:::service
+     Unbound:::service
+     Homepage:::service
+     NPM:::service
+     Crafty:::service
+     Beszel:::service
+     Flare:::service
+     Prowlarr:::media
+     Radarr:::media
+     Sonarr:::media
+     QB:::media
+     Seerr:::service
+     Jellyfin:::service
+     Immich:::service
+     Storage:::storage
+    classDef infra stroke:#818cf8,fill:#eef2ff
+    classDef service stroke:#2dd4bf,fill:#f0fdfa
+    classDef storage stroke:#facc15,fill:#fefce8
+    classDef network stroke:#38bdf8,fill:#f0f9ff
+    classDef media stroke:#a78bfa,fill:#f5f3ff
+    style ARR stroke:#AA00FF
 ```
 
 *Source: [`diagrams/network.mmd`](diagrams/network.mmd)*
