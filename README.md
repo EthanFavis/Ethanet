@@ -74,27 +74,27 @@ config:
   layout: elk
 ---
 flowchart LR
- subgraph Pi["Raspberry Pi"]
+ subgraph Pi["Raspberry Pi"]
         Pihole["Pi‑hole"]
-        Unbound["Unbound DNS"]
+        Unbound["Unbound DNS"]
   end
- subgraph ARR["Arr Stack"]
-        Prowlarr["prowlarr (105)"]
-        Radarr["radarr (106)"]
-        Sonarr["sonarr (107)"]
-        QB["qbittorrent (103)"]
+ subgraph ARR["Arr Stack"]
+        Prowlarr["prowlarr (105)"]
+        Radarr["radarr (106)"]
+        Sonarr["sonarr (107)"]
+        QB["qbittorrent (103)"]
   end
- subgraph PVE["Proxmox Host — pve"]
-        Homepage["homepage (110)"]
-        NPM["nginx proxy manager (101)"]
-        Crafty["crafty‑controller (100)"]
-        Beszel["beszel (111)"]
-        Flare["flaresolverr (109)"]
+ subgraph PVE["Proxmox Host — pve"]
+        Homepage["homepage (110)"]
+        NPM["nginx proxy manager (101)"]
+        Crafty["crafty‑controller (100)"]
+        Beszel["beszel (111)"]
+        Flare["flaresolverr (109)"]
         ARR
-        Seerr["jellyseerr (108)"]
-        Jellyfin["jellyfin (104 · GPU)"]
-        Immich["immich (102 · GPU)"]
-        Storage[("/mnt/data<br>1 TB HDD")]
+        Seerr["jellyseerr (108)"]
+        Jellyfin["jellyfin (104 · GPU)"]
+        Immich["immich (102 · GPU)"]
+        Storage[("/mnt/data<br>1 TB HDD")]
   end
     Internet(("Internet")) --> Tailnet(("Tailscale<br>tailnet"))
     Pihole --> Unbound
