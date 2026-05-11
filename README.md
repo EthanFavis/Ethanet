@@ -125,11 +125,11 @@ flowchart LR
      Jellyfin:::service
      Immich:::service
      Storage:::storage
-    classDef infra stroke:#818cf8,stroke-width:2px
-    classDef service stroke:#2dd4bf,stroke-width:2px
-    classDef storage stroke:#facc15,stroke-width:2px
-    classDef network stroke:#38bdf8,stroke-width:2px
-    classDef media stroke:#a78bfa,stroke-width:2px
+    classDef infra stroke:#818cf8,fill:#eef2ff
+    classDef service stroke:#2dd4bf,fill:#f0fdfa
+    classDef storage stroke:#facc15,fill:#fefce8
+    classDef network stroke:#38bdf8,fill:#f0f9ff
+    classDef media stroke:#a78bfa,fill:#f5f3ff
     style ARR stroke:#AA00FF
 ```
 
