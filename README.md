@@ -132,7 +132,9 @@ flowchart LR
     classDef storage stroke:#facc15,fill:#fefce8
     classDef network stroke:#38bdf8,fill:#f0f9ff
     classDef media stroke:#a78bfa,fill:#f5f3ff
-    style ARR stroke:#AA00FF
+    style ARR stroke:#AA00FF,fill:transparent
+    style PVE fill:transparent
+    style Pi fill:transparent
 ```
 
 *Source: [`diagrams/network.mmd`](diagrams/network.mmd)*
