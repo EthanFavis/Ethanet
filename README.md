@@ -69,10 +69,6 @@ clearing those three bars.
 ## Topology
 
 ```mermaid
----
-config:
-  layout: elk
----
 flowchart LR
  subgraph Pi["Raspberry Pi"]
         Pihole["Pi‑hole"]
@@ -108,6 +104,12 @@ flowchart LR
     Jellyfin --> Storage
     Immich --> Storage
 
+    %% invisible edges to anchor orphan containers near NPM
+    NPM ~~~ Crafty
+    NPM ~~~ Homepage
+    NPM ~~~ Beszel
+    NPM ~~~ Immich
+
      Internet:::network
      Tailnet:::network
      Pihole:::service
@@ -125,11 +127,11 @@ flowchart LR
      Jellyfin:::service
      Immich:::service
      Storage:::storage
-    classDef infra stroke:#818cf8,fill:#eef2ff,color:#1f2937
-    classDef service stroke:#2dd4bf,fill:#f0fdfa,color:#1f2937
-    classDef storage stroke:#facc15,fill:#fefce8,color:#1f2937
-    classDef network stroke:#38bdf8,fill:#f0f9ff,color:#1f2937
-    classDef media stroke:#a78bfa,fill:#f5f3ff,color:#1f2937
+    classDef infra stroke:#818cf8,fill:#eef2ff
+    classDef service stroke:#2dd4bf,fill:#f0fdfa
+    classDef storage stroke:#facc15,fill:#fefce8
+    classDef network stroke:#38bdf8,fill:#f0f9ff
+    classDef media stroke:#a78bfa,fill:#f5f3ff
     style ARR stroke:#AA00FF
 ```
 
