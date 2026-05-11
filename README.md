@@ -69,7 +69,6 @@ clearing those three bars.
 ## Topology
 
 ```mermaid
-%%{init: {'flowchart': {'padding': 30, 'nodeSpacing': 50, 'rankSpacing': 70}}}%%
 flowchart LR
  subgraph Pi["Raspberry Pi"]
         Pihole["Pi‑hole"]
