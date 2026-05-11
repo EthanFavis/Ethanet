@@ -1,8 +1,9 @@
 %% Storage layout
 flowchart LR
     subgraph NVMe["256 GB NVMe"]
-        EFI[EFI · 1 GB]
-        LVM[LVM2 · 237 GB]
+        Disk["/dev/nvme0n1"]
+        Disk --> EFI[EFI · 1 GB]
+        Disk --> LVM[LVM2 · 237 GB]
         LVM --> Swap[swap · 8 GB]
         LVM --> Root[pve-root · 69 GB]
         LVM --> Thin[pve-data · 141 GB · LVM-thin]
