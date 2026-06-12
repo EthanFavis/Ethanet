@@ -2,7 +2,7 @@
 
 A small homelab built around three ideas:
 
-- **One small box, many isolated workloads.** A 35 W mini PC runs twelve
+- **One small box, many isolated workloads.** A 35 W mini PC runs thirteen
   unprivileged LXC containers — media, photos, game servers, monitoring,
   reverse proxy — without the overhead of full VMs.
 - **Tailscale-only access — nothing is publicly exposed.** Every container
@@ -55,8 +55,8 @@ clearing those three bars.
 |---|---|
 | **Host** | HP ProDesk 400 G6 Mini — Intel i5-10500T (6c/12t), 12 GB DDR4, 256 GB NVMe + 1 TB HDD |
 | **Hypervisor** | Proxmox VE 9.1.6 (kernel 6.17.13-2-pve) |
-| **Workloads** | 12 unprivileged LXC containers (no VMs) |
-| **Networking** | MikroTik router (192.168.88.0/24) → single bridge `vmbr0` → Tailscale on every container |
+| **Workloads** | 13 unprivileged LXC containers (no VMs) |
+| **Networking** | UniFi Cloud Gateway Ultra (192.168.88.0/24) → single bridge `vmbr0` → Tailscale on every container |
 | **External access** | Tailscale only — no port-forwards. NPM gives services clean HTTPS URLs (Let's Encrypt via Cloudflare DNS-01) |
 | **DNS** | [Pi-hole + Unbound](docs/services/pi-hole.md) on a 2012 Raspberry Pi 1B — recursive, ad-filtering |
 | **Remote access** | Tailscale (no port-forwards into the LAN) |
@@ -143,7 +143,7 @@ flowchart LR
 
 ## Services
 
-All twelve containers are unprivileged LXCs with `nesting=1, keyctl=1`,
+All thirteen containers are unprivileged LXCs with `nesting=1, keyctl=1`,
 provisioned through the community-scripts ProxmoxVE helpers. Every container
 runs `tailscaled` and is reachable on the tailnet without exposing the LAN.
 
@@ -161,6 +161,7 @@ runs `tailscaled` and is reachable on the tailnet without exposing the LAN.
 | 109 | [flaresolverr](docs/services/flaresolverr.md) | Cloudflare bypass | 2 | 2 GB | 4 GB | For Prowlarr |
 | 110 | [homepage](docs/services/homepage.md) | Dashboard | 2 | 4 GB | 6 GB | Landing page |
 | 111 | [beszel](docs/services/beszel.md) | Lightweight monitoring | 1 | 512 MB | 5 GB | Hub + agents |
+| 112 | [hermes](docs/services/hermes.md) | Hermes AI assistant agent | 2 | 2 GB | 8 GB | Ubuntu 24.04 |
 
 Plus, off-host on a Raspberry Pi 1B:
 
@@ -168,7 +169,7 @@ Plus, off-host on a Raspberry Pi 1B:
 |------|---------|---------|----:|-------|
 | `pihole` | [Pi-hole + Unbound](docs/services/pi-hole.md) | Network-wide ad filtering + recursive DNS | 512 MB | 2012 Raspberry Pi 1B, ARMv6 |
 
-Total committed: **29 vCPU / 37.5 GB RAM** on a 6c/12t / 12 GB host —
+Total committed: **31 vCPU / 39.5 GB RAM** on a 6c/12t / 12 GB host —
 oversubscribed on purpose; LXCs share the host kernel and idle very cheaply.
 
 ---
@@ -244,7 +245,7 @@ devices on the tailnet — they're not on the public internet.
 **This is the entire lab.** Top to bottom on the desk: a Raspberry Pi 1 in
 a case (running [Pi-hole + Unbound](docs/services/pi-hole.md)), a Cudy
 GS108 8-port gigabit switch, and the HP ProDesk 400 G6 Mini that hosts
-twelve LXC containers under Proxmox. A few patch cables tie the stack
+thirteen LXC containers under Proxmox. A few patch cables tie the stack
 together.
 
 ![3/4 view of the stack — HP host, Cudy switch, Raspberry Pi](photos/host-and-switch.jpg)

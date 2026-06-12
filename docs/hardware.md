@@ -22,8 +22,8 @@ shelf, runs on a 35 W TDP CPU, and is silent under normal load.
 
 | Component | Spec |
 |---|---|
-| Router | MikroTik (the `192.168.88.1` gateway) |
-| Switch | Cudy GS108 — 8-port unmanaged gigabit switch (sits on top of the host) |
+| Router / Gateway | Ubiquiti **UniFi Cloud Gateway Ultra** (UCG-Ultra) — the `192.168.88.1` gateway + on-box UniFi controller (replaced the previous MikroTik) |
+| Switch | Netgear GS108 — 8-port unmanaged gigabit switch *(planned: replace with a UniFi PoE switch)* |
 | DNS appliance | Raspberry Pi 1 Model B Rev 2 — see [services/pi-hole.md](services/pi-hole.md) |
 
 ## Capacity headroom
@@ -33,8 +33,8 @@ shelf, runs on a 35 W TDP CPU, and is silent under normal load.
 - **RAM:** 12 GB is the current bottleneck. One free SODIMM slot; replacing the
   4 GB stick with another 8 GB or 16 GB module would bring the lab to 16/24 GB
   and is the next planned upgrade.
-- **Storage:** the LVM-thin pool is at 60 % used; `/mnt/data` (media) is at
-  29 % of 916 GB.
+- **Storage:** the LVM-thin pool is at ~69 % used; `/mnt/data` (media) is at
+  **75 % of 916 GB** — filling up; the next storage decision is approaching.
 
 ## Why this hardware
 

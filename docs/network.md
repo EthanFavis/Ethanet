@@ -6,8 +6,8 @@ flowchart TB
     CF[Cloudflare<br/>authoritative DNS<br/>+ ACME DNS-01]
 
     subgraph LAN["LAN — 192.168.88.0/24"]
-        Router[MikroTik Router<br/>192.168.88.1<br/>DHCP + WAN<br/>:80/:443 forward]
-        Switch[Cudy GS108<br/>8-port gigabit switch]
+        Router[UniFi Cloud Gateway Ultra<br/>192.168.88.1<br/>DHCP + WAN + UniFi controller]
+        Switch[Netgear GS108<br/>8-port gigabit switch]
         Pi[pihole · Raspberry Pi<br/>Pi-hole + Unbound]
         PVE[pve host<br/>192.168.88.230]
         subgraph Containers["LXCs on vmbr0 (DHCP from router)"]
@@ -35,10 +35,12 @@ flowchart TB
 ## LAN
 
 - **Subnet:** `192.168.88.0/24`
-- **Gateway / DHCP / NAT:** MikroTik router at `192.168.88.1`
-- **Switch:** Cudy GS108 — 8-port gigabit unmanaged switch sitting between the router
-  and the rest of the lab — the Proxmox host and the Raspberry Pi both plug
-  into it.
+- **Gateway / DHCP / NAT:** Ubiquiti **UniFi Cloud Gateway Ultra** (UCG-Ultra) at
+  `192.168.88.1`. Replaced the previous MikroTik router; also runs the on-box
+  **UniFi network controller** for the lab.
+- **Switch:** Netgear GS108 — 8-port gigabit unmanaged switch sitting between the
+  gateway and the rest of the lab — the Proxmox host and the Raspberry Pi both
+  plug into it. *(Planned: replace with a UniFi PoE switch adopted into the UCG-Ultra controller.)*
 - **DNS:** [`pihole`](services/pi-hole.md) (Raspberry Pi) — LAN clients use it via DHCP option
 - **Proxmox host:** `pve` — `192.168.88.230` (static via interfaces file)
 
@@ -66,7 +68,7 @@ iface vmbr0 inet static
     bridge-fd 0
 ```
 
-Containers receive their LAN address via DHCP from the MikroTik so leases are
+Containers receive their LAN address via DHCP from the UCG-Ultra so leases are
 visible in one place. Static-ish reservations are pinned by MAC.
 
 ## Tailscale

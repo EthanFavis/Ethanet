@@ -85,18 +85,16 @@ Once the RAM upgrade (item 3) lands, Home Assistant gets its own LXC for
 smart-home integration. Likely the HAOS-in-LXC route or the HA Container
 flavor — TBD based on what hardware integrations I end up needing.
 
-### 10. Replace MikroTik with a UniFi Cloud Gateway
+### 10. ✅ DONE — Replaced MikroTik with a UniFi Cloud Gateway Ultra
 
-Move the routing layer to a Ubiquiti UniFi Cloud Gateway. Wins:
+The routing layer now runs on a Ubiquiti **UniFi Cloud Gateway Ultra**
+(`192.168.88.1`), with the UniFi controller hosted on-box. The `192.168.88.0/24`
+config and DHCP reservations were carried over. Still to follow up on:
 
-- VLANs done properly — finally segment IoT, guest Wi-Fi, and lab traffic
-- IDS/IPS on the WAN edge
-- Centralised UniFi controller UI for the whole network (router + APs)
-- Cleaner DHCP and reservations management
-
-Knock-ons: re-do the `192.168.88.0/24` configuration on the new gateway,
-re-pin DHCP reservations by MAC, and update Pi-hole's upstream to keep
-matching the new DHCP DNS option.
+- **VLANs** — segment IoT, guest Wi-Fi, and lab traffic (not yet configured)
+- **UniFi PoE switch** — replace the Netgear GS108 and adopt into the controller
+- **UniFi AP** — adopt an access point into the controller for managed Wi-Fi
+- Confirm Pi-hole remains the DHCP-served resolver on the new gateway
 
 ## Longer term / wishlist
 
