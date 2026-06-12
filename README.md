@@ -240,17 +240,20 @@ devices on the tailnet — they're not on the public internet.
 
 ## The hardware in the wild
 
-![HP ProDesk 400 G6 Mini, front view, with the Cudy switch and pihole Pi stacked on top](photos/host-front.jpg)
+![Full front view of the LinkBasic rack, powered on — UniFi Cloud Gateway Ultra, CAT6 patch panel, Netgear GS108 plus the Pi-hole Pi, and the HP ProDesk Mini](photos/ethernet-full-front-on.jpeg)
 
-**This is the entire lab.** Top to bottom on the desk: a Raspberry Pi 1 in
-a case (running [Pi-hole + Unbound](docs/services/pi-hole.md)), a Cudy
-GS108 8-port gigabit switch, and the HP ProDesk 400 G6 Mini that hosts
-thirteen LXC containers under Proxmox. A few patch cables tie the stack
-together.
+**This is the entire lab.** Top to bottom in a LinkBasic open-frame rack: the
+**UniFi Cloud Gateway Ultra** (its OLED showing live client and throughput
+stats), a 12-port CAT6 patch panel, a Netgear GS108 8-port gigabit switch
+alongside the 2012 Raspberry Pi running
+[Pi-hole + Unbound](docs/services/pi-hole.md), and the HP ProDesk 400 G6 Mini
+that hosts thirteen LXC containers under Proxmox.
 
-![3/4 view of the stack — HP host, Cudy switch, Raspberry Pi](photos/host-and-switch.jpg)
+![Front view with the UniFi gateway OLED lit](photos/ethernet-front-on.jpeg)
 
-![Rear-angle view showing the patch cables and the Intel Core i5 sticker on the host](photos/host-rear-angle.jpg)
+![Three-quarter side view of the rack](photos/ethernet-side-off.jpeg)
+
+![Rear view of the rack and cabling](photos/ethernet-back-off.jpeg)
 
 ---
 
